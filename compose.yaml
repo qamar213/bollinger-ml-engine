@@ -1,0 +1,6 @@
+services:
+  bollingermlengine:
+    image: bollingermlengine
+    build:
+      context: .
+      dockerfile: ./Dockerfile
