@@ -4,7 +4,7 @@ import pandas as pd
 import yfinance as yf
 from yfinance import cache as yf_cache
 
-from config.settings import ROOT_DIR, TICKERS, START_DATE, END_DATE, DATA_RAW_DIR, MIN_SAMPLES
+from config.settings import ROOT_DIR, TICKERS, START_DATE, END_DATE, DATA_RAW_DIR, MIN_SAMPLES, PRICE_COL
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -29,6 +29,9 @@ def fetch_ticker(ticker: str, start: str, end: str) -> pd.DataFrame | None:
                 MIN_SAMPLES,
             )
             return None
+
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
 
         df.index = pd.to_datetime(df.index)
         df.dropna(inplace=True)
@@ -77,7 +80,21 @@ def load_ticker(ticker: str) -> pd.DataFrame | None:
     if not path.exists():
         log.warning("%s: no saved data found at %s.", ticker, path)
         return None
-    return pd.read_csv(path, index_col=0, parse_dates=True)
+
+    try:
+        df = pd.read_csv(path, index_col=0)
+        if PRICE_COL not in df.columns:
+            raise ValueError("missing flat price columns")
+    except Exception:
+        df = pd.read_csv(path, header=[0, 1], index_col=0)
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+
+    df.index = pd.to_datetime(df.index, format="%Y-%m-%d", errors="coerce")
+    df = df.loc[~df.index.isna()].copy()
+    df = df.apply(pd.to_numeric, errors="coerce")
+    df.dropna(inplace=True)
+    return df
 
 
 def load_all(tickers: list[str] = TICKERS) -> dict[str, pd.DataFrame]:
