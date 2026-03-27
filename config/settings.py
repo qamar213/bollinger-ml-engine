@@ -8,8 +8,12 @@ DATA_SPLITS_DIR = ROOT_DIR / "data" / "splits"
 MODELS_DIR      = ROOT_DIR / "models"
 RESULTS_DIR     = ROOT_DIR / "results"
 
-# Create directories if they don't exist
+# Create directories if they don't exist, and fail fast if a file blocks the path.
 for d in [DATA_RAW_DIR, DATA_PROC_DIR, DATA_SPLITS_DIR, MODELS_DIR, RESULTS_DIR]:
+    if d.exists() and not d.is_dir():
+        raise NotADirectoryError(
+            f"Expected directory at {d}, but found a file. Remove or rename it and retry."
+        )
     d.mkdir(parents=True, exist_ok=True)
 
 # ── Universe of Tickers ──────────────────────────────────────────────────────
