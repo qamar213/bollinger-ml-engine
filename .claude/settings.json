@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(.venv/Scripts/python.exe -m pip install optuna)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(.venv/Scripts/python.exe run_pipeline.py --trials 50)",
+      "Bash(.venv/Scripts/python.exe run_pipeline.py --no-tune)",
+      "Bash(.venv/Scripts/python.exe -m pip install streamlit plotly)",
+      "Bash(.venv/Scripts/python.exe -c \"import streamlit, plotly; print\\(''streamlit'', streamlit.__version__, ''| plotly'', plotly.__version__\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install imbalanced-learn -q)",
+      "Bash(where python3:*)",
+      "Bash(where py:*)",
+      "Read(//c/Users/syedq/AppData/Local/Programs/Python/**)",
+      "Read(//c/Users/syedq/anaconda3/**)",
+      "Read(//c/Users/syedq/miniconda3/**)",
+      "Bash(python3 -c \"import sys; print\\(sys.executable\\)\")",
+      "Read(//tmp/**)",
+      "Read(//c/Users/syedq//**)",
+      "Bash(\"/c/Users/syedq/AppData/Local/Programs/Python/Python313/python.exe\" -m pip install imbalanced-learn -q)",
+      "Bash(PYEXE=\"/c/Users/syedq/AppData/Local/Programs/Python/Python313/python.exe\")",
+      "Bash(\"$PYEXE\" run_pipeline.py --trials 75)",
+      "Read(//c/Users/syedq/**)",
+      "Bash(\"/c/Users/syedq/Documents/.venv/Scripts/python.exe\" -c \"import xgboost, yfinance, optuna; print\\(''OK''\\)\")",
+      "Bash(find /c/Users/syedq -name python.exe -not -path */WindowsApps/*)",
+      "Bash(while read:*)",
+      "Bash(do $p -c 'import xgboost')",
+      "Bash(done)",
+      "Bash(PYEXE=\"/c/Users/syedq/Documents/projects/bollinger-ml-engine/.venv/Scripts/python.exe\")",
+      "Bash(\"$PYEXE\" -c \"import xgboost, yfinance, optuna, sklearn; print\\(''All good''\\)\")",
+      "Bash(\"$PYEXE\" -c \"import imblearn; print\\(''imblearn OK''\\)\")",
+      "Bash(\"$PYEXE\" -m pip install imbalanced-learn -q)",
+      "Bash(\"$PYEXE\" run_pipeline.py --trials 100)"
+    ]
+  }
+}
