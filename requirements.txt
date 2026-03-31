@@ -1,3 +1,11 @@
 pandas
 yfinance
 pyarrow
+scikit-learn
+xgboost
+lightgbm
+joblib
+optuna
+streamlit
+plotly
+imbalanced-learn

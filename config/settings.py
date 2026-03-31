@@ -37,7 +37,7 @@ PRICE_COL       = "Close"
 
 # ── Labeling Settings ────────────────────────────────────────────────────────
 FORWARD_WINDOW  = 5      # days ahead to measure return
-BUY_THRESHOLD   = 0.02   # +2% = buy signal (label 1)
+BUY_THRESHOLD   = 0.05   # +5% = buy signal (label 1) — ~8% base rate, cleaner signal than 3%
 SELL_THRESHOLD  = -0.02  # -2% = sell signal (label 0)
 
 # ── Bollinger Band Settings ──────────────────────────────────────────────────
@@ -51,6 +51,34 @@ MACD_SLOW       = 26
 MACD_SIGNAL     = 9
 ATR_WINDOW      = 14
 VOLUME_WINDOW   = 20
+
+# ── Sector Map ───────────────────────────────────────────────────────────────
+# Integer-encoded sector for each ticker. XGBoost can use this as a grouping
+# signal — tickers in the same sector share macro and earnings cycle behaviour.
+SECTOR_MAP = {
+    # Technology
+    "AAPL": 0, "MSFT": 0, "NVDA": 0, "AVGO": 0, "ORCL": 0,
+    "CSCO": 0, "IBM":  0, "TXN":  0, "ACN":  0, "QCOM": 0,
+    # Communication Services
+    "GOOGL": 1, "META": 1,
+    # Consumer Discretionary
+    "AMZN": 2, "TSLA": 2, "HD": 2, "MCD": 2, "NKE": 2, "SBUX": 2,
+    # Consumer Staples
+    "WMT": 3, "PG": 3, "KO": 3, "PEP": 3, "COST": 3,
+    # Financials
+    "JPM": 4, "V": 4, "MA": 4, "BAC": 4, "GS": 4, "BLK": 4,
+    # Health Care
+    "UNH": 5, "JNJ": 5, "MRK": 5, "ABBV": 5, "PFE": 5,
+    "TMO": 5, "DHR": 5, "ABT": 5, "AMGN": 5, "BMY": 5,
+    # Industrials
+    "HON": 6, "UPS": 6, "RTX": 6, "CAT": 6, "GE": 6, "MMM": 6,
+    # Energy
+    "XOM": 7, "CVX": 7,
+    # Utilities
+    "NEE": 8,
+    # Materials
+    "LIN": 9,
+}
 
 # ── Model Settings ───────────────────────────────────────────────────────────
 TEST_SIZE       = 0.2    # 20% held out for final evaluation
