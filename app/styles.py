@@ -13,6 +13,14 @@ html, body, .stApp {
   font-family: 'Inter', sans-serif !important;
 }
 
+/* ── Force all widget labels and text black ── */
+label, .stSelectbox label, .stCheckbox label,
+[data-testid="stWidgetLabel"], [data-testid="stWidgetLabel"] p,
+[data-testid="stMarkdown"] p, [data-testid="stText"],
+.stCheckbox span, p, span {
+  color: #1a1a1a !important;
+}
+
 /* Hide all Streamlit chrome including sidebar */
 #MainMenu, footer, header { visibility: hidden; }
 [data-testid="stSidebarNav"] { display: none !important; }
@@ -36,38 +44,11 @@ section[data-testid="stSidebar"] { display: none !important; }
   padding-bottom: 0.2rem;
 }
 
-/* Nuclear reset — strip every element inside the nav bar */
-.topnav-wrap *,
-.topnav-wrap *:hover,
-.topnav-wrap *:focus,
-.topnav-wrap *:active {
-  background: transparent !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  border-color: transparent !important;
-  outline: none !important;
-}
-/* Force all text/links/buttons in nav to be black */
-.topnav-wrap a,
-.topnav-wrap button,
-.topnav-wrap span,
-.topnav-wrap p {
-  color: #1a1a1a !important;
-  font-size: 0.88rem !important;
-  font-weight: 500 !important;
-  text-decoration: none !important;
-}
-.topnav-wrap a:hover,
-.topnav-wrap button:hover { opacity: 0.5 !important; }
-.topnav-wrap a[data-testid="stPageLink-NavLink"][aria-current],
-.topnav-wrap a[data-testid="stPageLink-NavLink"][aria-current] * {
-  font-weight: 700 !important;
-}
-
-/* Plain anchor used for Dashboard nav link (preserves ?e=1 param) */
+/* All nav links are plain anchors — no st.page_link used */
 .nav-plain-link {
-  font-size: 0.88rem !important;
-  font-weight: 500 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
   color: #1a1a1a !important;
   text-decoration: none !important;
   display: flex !important;
@@ -77,8 +58,39 @@ section[data-testid="stSidebar"] { display: none !important; }
   padding: 0.5rem 0 !important;
   text-align: center !important;
   transition: opacity 0.15s !important;
+  letter-spacing: -0.01em !important;
 }
-.nav-plain-link:hover { opacity: 0.6 !important; color: #1a1a1a !important; }
+.nav-plain-link:hover { opacity: 0.45 !important; }
+
+/* ── Selectbox / dropdown overrides ── */
+[data-testid="stSelectbox"] > div > div,
+[data-testid="stSelectbox"] > div > div:hover,
+[data-testid="stSelectbox"] > div > div:focus-within {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+  color: #f0f0f0 !important;
+}
+[data-testid="stSelectbox"] > div > div > div,
+[data-testid="stSelectbox"] svg {
+  color: #f0f0f0 !important;
+  fill: #f0f0f0 !important;
+}
+/* Dropdown option list */
+[data-baseweb="popover"] ul,
+[data-baseweb="menu"] {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333 !important;
+}
+[data-baseweb="popover"] li,
+[data-baseweb="menu"] li {
+  color: #f0f0f0 !important;
+  background-color: #1a1a1a !important;
+}
+[data-baseweb="popover"] li:hover,
+[data-baseweb="menu"] li:hover {
+  background-color: #333 !important;
+}
 
 /* ── Hero ── */
 .hero-wrap { margin-bottom: 2.5rem; border-bottom: 1px solid #bababa; padding-bottom: 2rem; }
@@ -197,14 +209,58 @@ section[data-testid="stSidebar"] { display: none !important; }
 .perf-value { font-size: 2rem; font-weight: 800; color: #1a1a1a; letter-spacing: -1px; }
 .perf-label { font-size: 0.7rem; color: #aaa; margin-top: 0.4rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
 
+/* ── st.table overrides ── */
+[data-testid="stTable"] table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  color: #1a1a1a !important;
+}
+[data-testid="stTable"] th {
+  background: #c8c8c8 !important;
+  color: #1a1a1a !important;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  text-align: left;
+  border-bottom: 2px solid #bababa;
+}
+[data-testid="stTable"] td {
+  color: #1a1a1a !important;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #c4c4c4;
+}
+[data-testid="stTable"] tr:last-child td {
+  font-weight: 700;
+  border-top: 2px solid #bababa;
+}
+
+/* ── Chart container — dark card ── */
+[data-testid="stPlotlyChart"] {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
 /* ── Dataframe overrides ── */
 [data-testid="stDataFrame"] { border: 1px solid #d8d4ce !important; border-radius: 8px !important; }
+
+
+/* ── + Add button ── */
+div[data-testid="stButton"] button[kind="primary"],
+div[data-testid="stButton"] button {
+  background: #1a1a1a !important;
+  color: #f0f0f0 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+div[data-testid="stButton"] button:hover { opacity: 0.75 !important; }
 
 /* ── Watchlist remove button ── */
 div[data-testid="stButton"] button[kind="secondary"] {
   background: none !important;
   border: 1px solid #d0ccc6 !important;
-  color: #aaa !important;
+  color: #1a1a1a !important;
   font-size: 0.75rem !important;
   padding: 0.25rem 0.5rem !important;
   border-radius: 4px !important;

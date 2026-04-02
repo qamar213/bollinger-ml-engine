@@ -102,8 +102,12 @@ def _build_features_for_inference(df: pd.DataFrame, ticker: str, ticker_idx: int
 
         featured = build_features(df.copy())
 
-        # Market features expect a dict
-        featured_dict = build_market_features_all({ticker: featured})
+        # Market features need SPY for relative-strength columns
+        spy_df = fetch_ticker_history("SPY", period="5y")
+        ticker_map = {ticker: featured}
+        if spy_df is not None:
+            ticker_map["SPY"] = build_features(spy_df.copy())
+        featured_dict = build_market_features_all(ticker_map)
         featured = featured_dict[ticker]
 
         # Add ticker identity columns

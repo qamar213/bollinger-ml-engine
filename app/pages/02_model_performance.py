@@ -23,9 +23,9 @@ with nav_logo:
 with nav_home:
     st.markdown('<a href="/?e=1" target="_self" class="nav-plain-link">Dashboard</a>', unsafe_allow_html=True)
 with nav_sig:
-    st.page_link("pages/01_signal_explorer.py", label="Signal Explorer")
+    st.markdown('<a href="/signal_explorer" target="_self" class="nav-plain-link">Signal Explorer</a>', unsafe_allow_html=True)
 with nav_perf:
-    st.page_link("pages/02_model_performance.py", label="Model Performance")
+    st.markdown('<a href="/model_performance" target="_self" class="nav-plain-link">Model Performance</a>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("""
@@ -74,27 +74,26 @@ if cv:
         display[["precision","recall","f1","roc_auc"]] = display[["precision","recall","f1","roc_auc"]].map(
             lambda x: f"{x:.3f}" if isinstance(x, float) else x
         )
-        st.dataframe(
-            display.rename(columns={"fold":"Fold","precision":"Precision","recall":"Recall","f1":"F1","roc_auc":"ROC-AUC"}),
-            hide_index=True, use_container_width=True,
+        st.table(
+            display.rename(columns={"fold":"Fold","precision":"Precision","recall":"Recall","f1":"F1","roc_auc":"ROC-AUC"})
         )
 
         numeric_folds = [f for f in folds if isinstance(f.get("fold"), int)]
         if numeric_folds:
             fp = pd.DataFrame(numeric_folds)
             fig_cv = go.Figure()
-            for metric, color in [("roc_auc","#1a1a1a"),("precision","#555"),("f1","#aaa")]:
+            for metric, color in [("roc_auc","#1a1a1a"),("precision","#555"),("f1","#888")]:
                 fig_cv.add_trace(go.Bar(
                     name=metric.replace("_"," ").title(),
                     x=[f"Fold {f['fold']}" for f in numeric_folds],
                     y=fp[metric], marker_color=color,
                 ))
             fig_cv.update_layout(
-                barmode="group", paper_bgcolor="#dedede", plot_bgcolor="#dedede",
-                font=dict(color="#555"), legend=dict(bgcolor="rgba(0,0,0,0)"),
+                barmode="group", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#1a1a1a"), legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#1a1a1a")),
                 margin=dict(l=0,r=0,t=10,b=0), height=300,
-                yaxis=dict(range=[0,1], gridcolor="#e8e8e8"),
-                xaxis=dict(gridcolor="#e8e8e8"),
+                yaxis=dict(range=[0,1], gridcolor="#bababa", tickfont=dict(color="#1a1a1a")),
+                xaxis=dict(gridcolor="#bababa", tickfont=dict(color="#1a1a1a")),
             )
             st.plotly_chart(fig_cv, use_container_width=True)
 
@@ -111,10 +110,11 @@ if importance is not None and not importance.empty:
         color_continuous_scale=["#e0e0e0","#888","#1a1a1a"],
     )
     fig_imp.update_layout(
-        paper_bgcolor="#dedede", plot_bgcolor="#dedede",
-        font=dict(color="#555"), coloraxis_showscale=False,
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#1a1a1a"), coloraxis_showscale=False,
         margin=dict(l=0,r=0,t=10,b=0), height=550,
-        xaxis=dict(gridcolor="#e8e8e8"), yaxis=dict(gridcolor="#e8e8e8"),
+        xaxis=dict(gridcolor="#bababa", tickfont=dict(color="#1a1a1a"), title=dict(text="importance", font=dict(color="#1a1a1a"))),
+        yaxis=dict(gridcolor="#bababa", tickfont=dict(color="#1a1a1a"), title=""),
     )
     st.plotly_chart(fig_imp, use_container_width=True)
 else:

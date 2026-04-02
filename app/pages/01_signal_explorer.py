@@ -30,9 +30,9 @@ with nav_logo:
 with nav_home:
     st.markdown('<a href="/?e=1" target="_self" class="nav-plain-link">Dashboard</a>', unsafe_allow_html=True)
 with nav_sig:
-    st.page_link("pages/01_signal_explorer.py", label="Signal Explorer")
+    st.markdown('<a href="/signal_explorer" target="_self" class="nav-plain-link">Signal Explorer</a>', unsafe_allow_html=True)
 with nav_perf:
-    st.page_link("pages/02_model_performance.py", label="Model Performance")
+    st.markdown('<a href="/model_performance" target="_self" class="nav-plain-link">Model Performance</a>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ── Page heading + controls ───────────────────────────────────────────────────
@@ -53,19 +53,22 @@ with ctrl3:
 
 with st.spinner(f"Loading {ticker}..."):
     df = fetch_ticker_history(ticker, period=period)
+    df_full = fetch_ticker_history(ticker, period="5y")  # always 5y for feature computation
 
 if df is None or df.empty:
     st.error(f"Could not fetch data for {ticker}.")
     st.stop()
+if df_full is None or df_full.empty:
+    df_full = df
 
 # ── Build features for signal markers ────────────────────────────────────────
 model = load_model()
 ticker_index = {t: i for i, t in enumerate(TICKERS)}
 
 @st.cache_data(show_spinner=False, ttl=900)
-def get_signals_for_chart(ticker: str, period: str) -> pd.Series | None:
+def get_signals_for_chart(ticker: str) -> pd.Series | None:
     """Return a boolean series of buy signals for the full history."""
-    _df = fetch_ticker_history(ticker, period=period)
+    _df = fetch_ticker_history(ticker, period="5y")  # always 5y for enough feature history
     if _df is None:
         return None
     try:
@@ -73,8 +76,11 @@ def get_signals_for_chart(ticker: str, period: str) -> pd.Series | None:
         from src.features.market import build_market_features_all
         from config.settings import SECTOR_MAP
 
-        featured = build_features(_df.copy())
-        featured_dict = build_market_features_all({ticker: featured})
+        _spy = fetch_ticker_history("SPY", period="5y")
+        ticker_map = {ticker: build_features(_df.copy())}
+        if _spy is not None:
+            ticker_map["SPY"] = build_features(_spy.copy())
+        featured_dict = build_market_features_all(ticker_map)
         featured = featured_dict[ticker]
         featured["ticker_encoded"] = ticker_index[ticker]
         featured["sector"]         = SECTOR_MAP.get(ticker, -1)
@@ -86,7 +92,7 @@ def get_signals_for_chart(ticker: str, period: str) -> pd.Series | None:
     except Exception:
         return None
 
-signals = get_signals_for_chart(ticker, period)
+signals = get_signals_for_chart(ticker)
 
 # ── Indicator panel values (most recent row) ──────────────────────────────────
 try:
@@ -94,14 +100,19 @@ try:
     from src.features.market import build_market_features_all
     from config.settings import SECTOR_MAP
 
-    featured_full = build_features(df.copy())
-    featured_full_dict = build_market_features_all({ticker: featured_full})
+    spy_df = fetch_ticker_history("SPY", period="5y")
+    ticker_map = {ticker: build_features(df_full.copy())}
+    if spy_df is not None:
+        ticker_map["SPY"] = build_features(spy_df.copy())
+
+    featured_full_dict = build_market_features_all(ticker_map)
     featured_full = featured_full_dict[ticker]
     featured_full["ticker_encoded"] = ticker_index[ticker]
     featured_full["sector"]         = SECTOR_MAP.get(ticker, -1)
     featured_full = featured_full.dropna(subset=FEATURE_COLS)
     last = featured_full.iloc[-1] if not featured_full.empty else None
-except Exception:
+except Exception as e:
+    import traceback; traceback.print_exc()
     last = None
 
 # ── Layout: chart left, indicators right ─────────────────────────────────────
@@ -110,7 +121,7 @@ chart_col, info_col = st.columns([3, 1])
 with info_col:
     st.markdown('<p class="section-heading">Indicators</p>', unsafe_allow_html=True)
     if last is not None:
-        def card(label, value, fmt=".2f", color="#58a6ff"):
+        def card(label, value, fmt=".2f", color="#1a1a1a"):
             display = f"{value:{fmt}}" if not np.isnan(float(value)) else "—"
             st.markdown(f"""
             <div class="ind-card">
@@ -119,7 +130,7 @@ with info_col:
             </div>""", unsafe_allow_html=True)
 
         rsi = last.get("rsi", float("nan"))
-        rsi_color = "#ff4b4b" if rsi > 70 else "#3fb950" if rsi < 30 else "#58a6ff"
+        rsi_color = "#cc3333" if rsi > 70 else "#2d8a4e" if rsi < 30 else "#1a1a1a"
         card("RSI (14)", rsi, ".1f", rsi_color)
         card("MACD %", last.get("macd_pct", float("nan")), ".4f")
         card("ATR %", last.get("atr_pct", float("nan")), ".3f")
@@ -137,13 +148,14 @@ with info_col:
             badge_class = "badge-buy" if pred == 1 else "badge-none"
             signal_text = "VOL EXPANDING" if pred == 1 else "CONTRACTING"
             border_color = "rgba(63,185,80,0.4)" if pred == 1 else "rgba(139,148,158,0.2)"
-            conf_color   = "#3fb950" if pred == 1 else "#4a5568"
+            conf_color   = "#2d8a4e" if pred == 1 else "#1a1a1a"
             st.markdown(f"""
             <div class="conf-card" style="border-color:{border_color}">
               <div class="conf-value" style="color:{conf_color}">{prob:.1%}</div>
               <div class="conf-label">Model Confidence</div>
               <span class="conf-badge {badge_class}">{signal_text}</span>
             </div>""", unsafe_allow_html=True)
+
     else:
         st.info("Indicators unavailable.")
 
@@ -193,9 +205,10 @@ with chart_col:
         name=ticker,
     ), row=1, col=1)
 
-    # Buy signal markers
+    # Buy signal markers — filter to the visible chart period only
     if signals is not None:
-        buy_dates  = signals[signals == 1].index
+        visible_signals = signals[signals.index.isin(df.index)]
+        buy_dates  = visible_signals[visible_signals == 1].index
         buy_prices = df.loc[df.index.isin(buy_dates), "Low"].squeeze() * 0.985
         fig.add_trace(go.Scatter(
             x=buy_dates, y=buy_prices,
@@ -229,17 +242,17 @@ with chart_col:
         ), row=3, col=1)
 
     fig.update_layout(
-        height=620,
-        paper_bgcolor="#dedede",
-        plot_bgcolor="#dedede",
-        font=dict(color="#555", size=12),
+        height=680,
+        paper_bgcolor="#0d1117",
+        plot_bgcolor="#0d1117",
+        font=dict(color="#aaa", size=12),
         xaxis_rangeslider_visible=False,
         legend=dict(orientation="h", y=1.02, bgcolor="rgba(0,0,0,0)"),
-        margin=dict(l=0, r=0, t=30, b=0),
+        margin=dict(l=20, r=30, t=40, b=20),
         hovermode="x unified",
     )
-    fig.update_xaxes(gridcolor="#c0c0c0", showgrid=True)
-    fig.update_yaxes(gridcolor="#c0c0c0", showgrid=True)
+    fig.update_xaxes(gridcolor="#21262d", showgrid=True)
+    fig.update_yaxes(gridcolor="#21262d", showgrid=True)
 
     st.plotly_chart(fig, use_container_width=True)
 

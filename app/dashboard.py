@@ -36,7 +36,7 @@ def save_watchlist(tickers: list) -> None:
 def get_vol_prediction(ticker: str, ticker_idx: int):
     """Return (proba, pred) for a single ticker using live data."""
     try:
-        df = fetch_ticker_history(ticker, period="2y")
+        df = fetch_ticker_history(ticker, period="5y")
         if df is None or len(df) < 250:
             return None, None
         X = _build_features_for_inference(df, ticker, ticker_idx)
@@ -262,9 +262,9 @@ with nav_logo:
 with nav_home:
     st.markdown('<a href="/?e=1" target="_self" class="nav-plain-link">Dashboard</a>', unsafe_allow_html=True)
 with nav_sig:
-    st.page_link("pages/01_signal_explorer.py", label="Signal Explorer")
+    st.markdown('<a href="/signal_explorer" target="_self" class="nav-plain-link">Signal Explorer</a>', unsafe_allow_html=True)
 with nav_perf:
-    st.page_link("pages/02_model_performance.py", label="Model Performance")
+    st.markdown('<a href="/model_performance" target="_self" class="nav-plain-link">Model Performance</a>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ── Hero ───────────────────────────────────────────────────────────────────────
@@ -287,7 +287,7 @@ with add_col:
     available = [t for t in TICKERS if t not in st.session_state.watchlist]
     pick = st.selectbox("Add a ticker to track", ["— select —"] + available, label_visibility="collapsed")
 with btn_col:
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<label style='visibility:hidden;font-size:0.875rem;display:block;margin-bottom:0.25rem'>_</label>", unsafe_allow_html=True)
     if st.button("+ Add", use_container_width=True) and pick != "— select —":
         st.session_state.watchlist.append(pick)
         save_watchlist(st.session_state.watchlist)
@@ -298,7 +298,7 @@ ticker_index = {t: i for i, t in enumerate(TICKERS)}
 
 if not st.session_state.watchlist:
     st.markdown("""
-    <div style="background:#eeecea;border:1px solid #e0deda;border-radius:8px;
+    <div style="background:#c8c8c8;border:1px solid #bababa;border-radius:8px;
                 padding:2.5rem;text-align:center;margin-top:0.5rem">
       <div style="font-size:1.4rem;margin-bottom:0.5rem">📌</div>
       <div style="font-weight:700;color:#1a1a1a;margin-bottom:0.3rem">No tickers bookmarked yet</div>
