@@ -330,7 +330,7 @@ else:
                 status_color = "#166534"
                 badge_bg     = "#dcfce7"
                 badge_border = "#86efac"
-                proba_str    = f"{1 - proba:.0%}"
+                proba_str    = f"{(1 - proba):.0%}"
 
             st.markdown(f"""
             <div class="signal-card" style="margin-bottom:0.75rem">

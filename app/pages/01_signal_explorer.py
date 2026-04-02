@@ -145,13 +145,14 @@ with info_col:
             X_last = featured_full[FEATURE_COLS].iloc[[-1]]
             prob = model.predict_proba(X_last).iloc[0]
             pred = model.predict(X_last).iloc[0]
+            display_prob = float(prob) if pred == 1 else 1 - float(prob)
             badge_class = "badge-buy" if pred == 1 else "badge-none"
             signal_text = "VOL EXPANDING" if pred == 1 else "CONTRACTING"
             border_color = "rgba(63,185,80,0.4)" if pred == 1 else "rgba(139,148,158,0.2)"
             conf_color   = "#2d8a4e" if pred == 1 else "#1a1a1a"
             st.markdown(f"""
             <div class="conf-card" style="border-color:{border_color}">
-              <div class="conf-value" style="color:{conf_color}">{prob:.1%}</div>
+              <div class="conf-value" style="color:{conf_color}">{display_prob:.1%}</div>
               <div class="conf-label">Model Confidence</div>
               <span class="conf-badge {badge_class}">{signal_text}</span>
             </div>""", unsafe_allow_html=True)
