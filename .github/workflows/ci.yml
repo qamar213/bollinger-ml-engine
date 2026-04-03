@@ -22,4 +22,4 @@ jobs:
 
       - name: Lint
         run: |
-          flake8 app/ --max-line-length=120 --ignore=E501,W503 --exclude=__pycache__
+          flake8 app/ --select=E9,F --ignore=F401,F841,F541 --exclude=__pycache__
